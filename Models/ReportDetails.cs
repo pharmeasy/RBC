@@ -7,12 +7,27 @@ namespace RBC.Models
 {
     public class ByteReportReqBody
     {
-        public string CustomerId { get; set; }
+        public string testcode { get; set; }
         public string labcode { get; set; }
         public string sampledate { get; set; }
         public string report_group_id { get; set; }
         public int slno { get; set; }
-}
+        public int cnt { get; set; }
+        public int flag { get; set; }
+        public int endOfReport { get; set; }
+        public int DN { get; set; }
+        public int flag_no { get; set; }
+        public int a { get; set; }
+        public int RK { get; set; }
+        public bool displayReport { get; set; }
+        public string report_name { get; set; }
+        public string strname1 { get; set; }
+        public string tempfilepath { get; set; }
+        public string sct { get; set; }
+        public string bvt { get; set; }
+        public string rrt { get; set; }
+        public string customerid { get; set; }
+    }
 
     public class ByteReportResponse
     {

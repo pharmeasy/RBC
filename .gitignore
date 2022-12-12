@@ -1,2 +1,4 @@
 Packages/
 bin/
+obj/
+.vs/
