@@ -24,32 +24,6 @@ namespace RBC.AppCodes
             {
                 CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
                 ReportDocument rpt = new ReportDocument();
-                //string TMailRPTFolder = ConfigurationManager.AppSettings["TMailRPTFolder"].ToString();
-                //string TPrintRPTFolder = ConfigurationManager.AppSettings["TPrintRPTFolder"].ToString();
-                //string TSignRPTFolder = ConfigurationManager.AppSettings["TSignRPTFolder"].ToString();
-                //string ETRPTFolder = ConfigurationManager.AppSettings["ETRPTFolder"].ToString();
-                //string WHATERSTEMPLATE = ConfigurationManager.AppSettings["WHATERSTEMPLATE"].ToString();
-                //string VIFITEMPLATE = ConfigurationManager.AppSettings["VIFITEMPLATE"].ToString();
-                //string LABNATIONTEMPLATE = ConfigurationManager.AppSettings["LABNATIONTEMPLATE"].ToString();
-                //string PORTEATEMPLATE = ConfigurationManager.AppSettings["PORTEA"].ToString();
-                //string MahaReport = ConfigurationManager.AppSettings["MahaReport"].ToString();  //Added Maha
-                //string TPrintMahaReport = ConfigurationManager.AppSettings["TPrintMAHA"].ToString();
-                //string SMTReport = ConfigurationManager.AppSettings["SMTRPTFolder"].ToString();
-
-                //if(byteReportReqBody.isPE == true)
-                //{
-                //    TMailRPTFolder = TMailRPTFolder + @"PE\";
-                //    TPrintRPTFolder = TPrintRPTFolder + @"PE\";
-                //    TSignRPTFolder = TSignRPTFolder + @"PE\";
-                //    ETRPTFolder = ETRPTFolder + @"PE\";
-                //    WHATERSTEMPLATE = WHATERSTEMPLATE + @"PE\";
-                //    VIFITEMPLATE = VIFITEMPLATE + @"PE\";
-                //    LABNATIONTEMPLATE = LABNATIONTEMPLATE + @"PE\";
-                //    PORTEATEMPLATE = PORTEATEMPLATE + @"PE\";
-                //    MahaReport = MahaReport + @"PE\";
-                //    TPrintMahaReport = TPrintMahaReport + @"PE\";
-                //    SMTReport = SMTReport + @"PE\";
-                //}
 
                 string testcode = byteReportReqBody.testcode;
 
@@ -108,14 +82,11 @@ namespace RBC.AppCodes
                 rpt.SetParameterValue("barcode", ds.Tables[0].Rows[0]["barcode"].ToString());
                 rpt.SetParameterValue("refby", ds.Tables[0].Rows[0]["ref_dr"].ToString());
                 string tests = ds.Tables[0].Rows[0]["tests"].ToString();
-                int barcodeCount = byteReportReqBody.cnt;
-                int flag = byteReportReqBody.flag;
+       
                 int endOfReport = byteReportReqBody.endOfReport;
                 bool displayReport = byteReportReqBody.displayReport;
-                //int RK = byteReportReqBody.RK;
-                int currPage = byteReportReqBody.DN;
-                int totalPages = byteReportReqBody.flag_no;
-                int barcodeItr = byteReportReqBody.a;
+                int currPage = byteReportReqBody.currPage;
+                int totalPages = byteReportReqBody.totalPages;
                 string reportName = byteReportReqBody.report_name;
                 string refferenceOrTechnology = byteReportReqBody.strname1;
                 string tempfilepath = byteReportReqBody.tempfilepath;
@@ -124,21 +95,9 @@ namespace RBC.AppCodes
                 string rrt = byteReportReqBody.rrt;
                 string customerid = byteReportReqBody.customerid;
 
-
-                if (flag == 1)
+                if(endOfReport == 1)
                 {
-                    if (barcodeItr >= barcodeCount - 1)
-                    {
-
-                        endOfReport = 1;
-                        rpt.SetParameterValue("endreport", "~~ end of report ~~");
-                    }
-                    else
-                    {
-                        //rk = currPage + 1;
-                        rpt.SetParameterValue("endreport", "");
-
-                    }
+                    rpt.SetParameterValue("endreport", "~~ end of report ~~");
                 }
                 else
                 {
@@ -146,10 +105,6 @@ namespace RBC.AppCodes
                 }
 
                 rpt.SetParameterValue("page_no", "page : " + currPage + " of " + totalPages);
-                if (currPage <= totalPages)
-                {
-                    currPage++;
-                }
 
                 if (reportName.ToUpper() == "allergy.rpt")
                     rpt.SetParameterValue("strname", refferenceOrTechnology);

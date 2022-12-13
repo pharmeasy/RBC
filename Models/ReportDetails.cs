@@ -15,10 +15,8 @@ namespace RBC.Models
         public int cnt { get; set; }
         public int flag { get; set; }
         public int endOfReport { get; set; }
-        public int DN { get; set; }
-        public int flag_no { get; set; }
-        public int a { get; set; }
-        public int RK { get; set; }
+        public int currPage { get; set; }
+        public int totalPages { get; set; }
         public bool displayReport { get; set; }
         public bool isPE { get; set; }
         public string rptFilePath { get; set; }
