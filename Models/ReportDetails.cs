@@ -20,6 +20,8 @@ namespace RBC.Models
         public int a { get; set; }
         public int RK { get; set; }
         public bool displayReport { get; set; }
+        public bool isPE { get; set; }
+        public string rptFilePath { get; set; }
         public string report_name { get; set; }
         public string strname1 { get; set; }
         public string tempfilepath { get; set; }

@@ -24,15 +24,78 @@ namespace RBC.AppCodes
             {
                 CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
                 ReportDocument rpt = new ReportDocument();
-                string rptpath = @"C:\inetpub\wwwroot\TRPT\";
+                //string TMailRPTFolder = ConfigurationManager.AppSettings["TMailRPTFolder"].ToString();
+                //string TPrintRPTFolder = ConfigurationManager.AppSettings["TPrintRPTFolder"].ToString();
+                //string TSignRPTFolder = ConfigurationManager.AppSettings["TSignRPTFolder"].ToString();
+                //string ETRPTFolder = ConfigurationManager.AppSettings["ETRPTFolder"].ToString();
+                //string WHATERSTEMPLATE = ConfigurationManager.AppSettings["WHATERSTEMPLATE"].ToString();
+                //string VIFITEMPLATE = ConfigurationManager.AppSettings["VIFITEMPLATE"].ToString();
+                //string LABNATIONTEMPLATE = ConfigurationManager.AppSettings["LABNATIONTEMPLATE"].ToString();
+                //string PORTEATEMPLATE = ConfigurationManager.AppSettings["PORTEA"].ToString();
+                //string MahaReport = ConfigurationManager.AppSettings["MahaReport"].ToString();  //Added Maha
+                //string TPrintMahaReport = ConfigurationManager.AppSettings["TPrintMAHA"].ToString();
+                //string SMTReport = ConfigurationManager.AppSettings["SMTRPTFolder"].ToString();
+
+                //if(byteReportReqBody.isPE == true)
+                //{
+                //    TMailRPTFolder = TMailRPTFolder + @"PE\";
+                //    TPrintRPTFolder = TPrintRPTFolder + @"PE\";
+                //    TSignRPTFolder = TSignRPTFolder + @"PE\";
+                //    ETRPTFolder = ETRPTFolder + @"PE\";
+                //    WHATERSTEMPLATE = WHATERSTEMPLATE + @"PE\";
+                //    VIFITEMPLATE = VIFITEMPLATE + @"PE\";
+                //    LABNATIONTEMPLATE = LABNATIONTEMPLATE + @"PE\";
+                //    PORTEATEMPLATE = PORTEATEMPLATE + @"PE\";
+                //    MahaReport = MahaReport + @"PE\";
+                //    TPrintMahaReport = TPrintMahaReport + @"PE\";
+                //    SMTReport = SMTReport + @"PE\";
+                //}
+
                 string testcode = byteReportReqBody.testcode;
 
-                rpt.Load(rptpath + @"\HIVQN.rpt");
                 ds = ExecuteReportGenerationSteps("ReportDB..usp_pdfgen_new", testcode, byteReportReqBody.labcode, byteReportReqBody.sampledate, byteReportReqBody.report_group_id, byteReportReqBody.slno);
-
-                if (ds.Tables[0].Rows.Count == 0)
+                if (ds.Tables[0].Rows.Count <= 0)
                 {
                     return null;
+                }
+
+                rpt.Load(byteReportReqBody.rptFilePath);
+
+                if (testcode == "HIVE" || testcode == "SAGHIVE" || testcode == "HIVESAG")
+                {
+                    if (ds.Tables.Count > 0)
+                    {
+                        if (ds.Tables[1].Rows.Count > 0)
+                        {
+                            rpt.SetParameterValue("GP160", ds.Tables[1].Rows[0]["GP160"].ToString());
+                            rpt.SetParameterValue("GP120", ds.Tables[1].Rows[0]["GP120"].ToString());
+                            rpt.SetParameterValue("P66", ds.Tables[1].Rows[0]["P66"].ToString());
+                            rpt.SetParameterValue("P55", ds.Tables[1].Rows[0]["P55"].ToString());
+                            rpt.SetParameterValue("P51", ds.Tables[1].Rows[0]["P51"].ToString());
+                            rpt.SetParameterValue("GP41", ds.Tables[1].Rows[0]["GP41"].ToString());
+                            rpt.SetParameterValue("P31", ds.Tables[1].Rows[0]["P31"].ToString());
+                            rpt.SetParameterValue("P24", ds.Tables[1].Rows[0]["P24"].ToString());
+                            rpt.SetParameterValue("P17", ds.Tables[1].Rows[0]["P17"].ToString());
+                            rpt.SetParameterValue("HIV_2", ds.Tables[1].Rows[0]["HIV_2"].ToString());
+                            rpt.SetParameterValue("COMMENTS", ds.Tables[1].Rows[0]["COMMENTS"].ToString());
+
+                        }
+                        else
+                        {
+                            rpt.SetParameterValue("GP160", "");
+                            rpt.SetParameterValue("GP120", "");
+                            rpt.SetParameterValue("P66", "");
+                            rpt.SetParameterValue("P55", "");
+                            rpt.SetParameterValue("P51", "");
+                            rpt.SetParameterValue("GP41", "");
+                            rpt.SetParameterValue("P31", "");
+                            rpt.SetParameterValue("P24", "");
+                            rpt.SetParameterValue("P17", "");
+                            rpt.SetParameterValue("HIV_2", "");
+                            rpt.SetParameterValue("COMMENTS", "");
+                        }
+
+                    }
                 }
 
                 rpt.SetDataSource(ds.Tables[0]);
@@ -300,9 +363,7 @@ namespace RBC.AppCodes
                 {
                     rpt.SetParameterValue("sampletype4", "");
                 }
-                //rpt.SetParameterValue("sampletype", datasheet_data.Tables[1].Rows[0]["sample_type"].ToString());
-                //string labcode = datasheet_data.Tables[0].Rows[0]["lab_code"].ToString();
-                //rpt.SetParameterValue("lab_code", labcode);
+       
                 rpt.SetParameterValue("sct", sct);
                 rpt.SetParameterValue("rrt", rrt);
                 rpt.SetParameterValue("amcollec", amountcollected == 0 ? "-" : actualamount);

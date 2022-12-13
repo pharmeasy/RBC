@@ -4,6 +4,7 @@ using System;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace RBC.AppCodes
 {
@@ -100,6 +101,14 @@ namespace RBC.AppCodes
             }
 
             return words;
+        }
+
+
+        // todo: create hashmap of testcodes and path, instead of if conditions
+        public static string getRptPathsByTestCode(string testcode)
+        {
+            Dictionary<String, String> rptPathConfig = new Dictionary<String, String>();
+            return rptPathConfig[testcode];
         }
     }
 }
