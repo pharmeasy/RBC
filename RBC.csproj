@@ -208,6 +208,7 @@
     <Compile Include="AppCodes\ErrorLogger.cs" />
     <Compile Include="AppCodes\CommonFunctions.cs" />
     <Compile Include="AppCodes\ReportService.cs" />
+    <Compile Include="AppCodes\StringToDataTable.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />

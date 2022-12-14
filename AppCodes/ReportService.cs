@@ -1,12 +1,15 @@
 ﻿using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Web;
+using Newtonsoft.Json;
 using RBC.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Web;
 using Thyrocare.IT.DataLayer;
@@ -87,13 +90,13 @@ namespace RBC.AppCodes
                 bool displayReport = byteReportReqBody.displayReport;
                 int currPage = byteReportReqBody.currPage;
                 int totalPages = byteReportReqBody.totalPages;
-                string reportName = byteReportReqBody.report_name;
+                string reportName = byteReportReqBody.reportName;
                 string refferenceOrTechnology = byteReportReqBody.strname1;
                 string tempfilepath = byteReportReqBody.tempfilepath;
                 string sct = byteReportReqBody.sct;
                 string bvt = byteReportReqBody.bvt;
                 string rrt = byteReportReqBody.rrt;
-                string customerid = byteReportReqBody.customerid;
+                string customerid = byteReportReqBody.customerId;
 
                 if(endOfReport == 1)
                 {
@@ -206,12 +209,31 @@ namespace RBC.AppCodes
             }
             catch(Exception ex)
             {
+                Console.WriteLine("Exception during generateReportBarcoder" + ex);
                 ErrorLogger.InsertErrorLog(ex);
                 return null;
             }
         }
           
+        public byte[] generatepdfExtractAbstract(ByteReportReqBody byteReportReqBody)
+        {
+            try
+            {
+                List<AllData> UserList = JsonConvert.DeserializeObject<List<AllData>>(byteReportReqBody.dataSet);
+                DataTable dt = StringToDataTable.ToDataTable(UserList);
 
+                //CharbiServerData charbiServerData = byteReportReqBody.ReportServerIdentifider == 1 ? new CharbiServerData() : new CharbiServerData("FailoverDBConnection");
+                //DataSet woResultDetails = charbiServerData.GetResultOfAQuery("Select * from ReportDB..wo_result_detail (Nolock) where customerid='" + byteReportReqBody.customerId + "'");
+                //DataSet reportAllData = charbiServerData.GetResultOfAQuery("exec ReportDB..USP_REPORTGEN_PATIENTWISE 'GETPATIENTDTL','" + byteReportReqBody.customerId + "',''");
+                return binFile;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Exception during generatepdfExtractAbstract" + ex);
+                ErrorLogger.InsertErrorLog(ex);
+                return null;
+            }
+        }
         private DataSet ExecuteReportGenerationSteps(string _spName, string _keyword, string labcode = null, string sdate = null, string report_name = null, int slno = 0)
         {
             SqlParameter[] sqlParams = new SqlParameter[5];

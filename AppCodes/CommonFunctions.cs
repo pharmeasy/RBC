@@ -5,7 +5,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-
 namespace RBC.AppCodes
 {
     public class CommonFunctions

@@ -31,7 +31,7 @@ namespace RBC.Controllers
         public ByteReportResponse GenerateByteReport(ByteReportReqBody byteReportReqBody)
         {
             ReportService reportService = new ReportService();
-            byte[] binfile = reportService.generateReportBarcoder(byteReportReqBody);
+            byte[] binfile = reportService.generatepdfExtractAbstract(byteReportReqBody);
             ByteReportResponse response = new ByteReportResponse();
             response.ByteStream = binfile;
             return response;
