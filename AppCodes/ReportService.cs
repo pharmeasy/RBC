@@ -214,11 +214,11 @@ namespace RBC.AppCodes
 
         public ByteReportResponse generatepdfExtractAbstract(ByteReportReqBody byteReportReqBody)
         {
+            CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
+            ReportDocument rpt = new ReportDocument();
+            ByteReportResponse response = new ByteReportResponse();
             try
             {
-                CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
-                ReportDocument rpt = new ReportDocument();
-
                 List<AllData> UserList = JsonConvert.DeserializeObject<List<AllData>>(byteReportReqBody.dataSet);
                 DataTable dataTable = StringToDataTable.ToDataTable(UserList);
 
@@ -230,10 +230,6 @@ namespace RBC.AppCodes
                 rpt.Load(byteReportReqBody.rptFilePath);
                 rpt.SetDataSource(dataTable);
                 CrystalReportViewer1.ReportSource = rpt;
-                //string sct = Convert.ToDateTime(dataTable.Rows[0]["sct"].ToString()).ToString("dd MMM yyyy HH:mm");
-                //string bvt = Convert.ToDateTime(dataTable.Rows[0]["bvt"].ToString()).ToString("dd MMM yyyy HH:mm");
-                //string rrt = Convert.ToDateTime(dataTable.Rows[0]["rrt"].ToString()).ToString("dd MMM yyyy HH:mm");
-
                 //region Add parameters
                 //pass the user inputs to crystal report parameters those will sit in the output pdf file
                 string patientName = dataTable.Rows[0]["patient"].ToString();
@@ -247,9 +243,6 @@ namespace RBC.AppCodes
                 string labcode = dataTable.Rows[0]["lab_code"].ToString();
                 rpt.SetParameterValue("tests", tests);
                 rpt.SetParameterValue("labcode", labcode);
-                //rpt.SetParameterValue("sct", sct.ToString());
-                //rpt.SetParameterValue("bvt", bvt.ToString());
-                //rpt.SetParameterValue("rrt", rrt.ToString());
                 rpt.SetParameterValue("sct", byteReportReqBody.sct);
                 rpt.SetParameterValue("bvt", byteReportReqBody.bvt);
                 rpt.SetParameterValue("rrt", byteReportReqBody.rrt);
@@ -258,7 +251,8 @@ namespace RBC.AppCodes
                 rpt.SetParameterValue("remark", dataTable.Rows[0]["remarks"].ToString());
                 rpt.SetParameterValue("WP", " ");
                 rpt.SetParameterValue("PageNo", byteReportReqBody.totalPages);
-                rpt.SetParameterValue("QRFilePath", byteReportReqBody.tempfilepath);
+                if(byteReportReqBody.absReportType == 2)
+                    rpt.SetParameterValue("QRFilePath", byteReportReqBody.tempfilepath);
                 rpt.SetParameterValue("PageInitialCount", byteReportReqBody.pageInitialCount);
 
                 if (byteReportReqBody.endOfReport == 1)
@@ -277,27 +271,30 @@ namespace RBC.AppCodes
                 binFile = new byte[oStream.Length];
                 oStream.Read(binFile, 0, Convert.ToInt32(oStream.Length - 1));
 
-                ByteReportResponse response = new ByteReportResponse();
                 response.ByteStream = binFile;
                 response.PageNumber = pageInitialCount;
-
-                return response;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during generatepdfExtractAbstract" + ex);
                 ErrorLogger.InsertErrorLog(ex);
-                return null;
             }
+            finally
+            {
+                rpt.Close();
+                rpt.Dispose();
+                CrystalReportViewer1.Dispose();
+            }
+            return response;
         }
 
         public int GetAbstractPageCountNEW(ByteReportReqBody byteReportReqBody)
         {
+            CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
+            ReportDocument rpt = new ReportDocument();
             int pageNumber = 0;
             try
             {
-                CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
-                ReportDocument rpt = new ReportDocument();
 
                 List<AllData> UserList = JsonConvert.DeserializeObject<List<AllData>>(byteReportReqBody.dataSet);
                 DataTable dataTable = StringToDataTable.ToDataTable(UserList);
@@ -306,18 +303,19 @@ namespace RBC.AppCodes
                 rpt.SetDataSource(dataTable);
                 CrystalReportViewer1.ReportSource = rpt;
                 pageNumber = rpt.FormatEngine.GetLastPageNumber(new CrystalDecisions.Shared.ReportPageRequestContext());
-
-                rpt.Close();
-                rpt.Dispose();
-                CrystalReportViewer1.Dispose();
-                return pageNumber;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during GetAbstractPageCountNEW" + ex);
                 ErrorLogger.InsertErrorLog(ex);
-                return pageNumber;
             }
+            finally
+            {
+                rpt.Close();
+                rpt.Dispose();
+                CrystalReportViewer1.Dispose();
+            }
+            return pageNumber;
 
         }
         private DataSet ExecuteReportGenerationSteps(string _spName, string _keyword, string labcode = null, string sdate = null, string report_name = null, int slno = 0)
