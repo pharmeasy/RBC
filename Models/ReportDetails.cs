@@ -46,6 +46,7 @@
         public int ReportServerIdentifider { get; set; }
 
         public string dataSet { get; set; }
+        public int pageInitialCount { get; set; }
     }
 
     public class ByteReportResponse
@@ -69,6 +70,8 @@
         public string Exception { get; set; }
 
         public int ByteLength { get; set; }
+
+        public int PageNumber { get; set; }
     }
 
     public class AllData

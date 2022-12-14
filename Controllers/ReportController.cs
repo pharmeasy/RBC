@@ -31,8 +31,23 @@ namespace RBC.Controllers
         public ByteReportResponse GenerateByteReport(ByteReportReqBody byteReportReqBody)
         {
             ReportService reportService = new ReportService();
-            byte[] binfile = reportService.generatepdfExtractAbstract(byteReportReqBody);
             ByteReportResponse response = new ByteReportResponse();
+            byte[] binfile = null;
+
+            if (byteReportReqBody.testcode == "abstractPageCount")
+            {
+                int pageNumber = reportService.GetAbstractPageCountNEW(byteReportReqBody);
+                response.PageNumber = pageNumber;
+                return response;
+            }
+            if (byteReportReqBody.testcode == "generatepdfExtractAbs")
+            {
+                return reportService.generatepdfExtractAbstract(byteReportReqBody);
+            }
+            else
+            {
+                binfile = reportService.generateReportBarcoder(byteReportReqBody);
+            }
             response.ByteStream = binfile;
             return response;
 
