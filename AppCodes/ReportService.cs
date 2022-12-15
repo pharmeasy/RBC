@@ -659,6 +659,51 @@ namespace RBC.AppCodes
 
         }
 
+        public byte[] addPartialSummaryPage(ByteReportReqBody byteReportReqBody)
+        {
+            ReportDocument rpt = new ReportDocument();
+            CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
+            string pr_status = null;
+
+            try
+            {
+                DataSet datasheet_data = ExecuteReportGenerationStepPECOVERandSummaryPage("ReportDB..usp_PartialSummaryPage", byteReportReqBody.customerId);
+                if (datasheet_data.Tables[0].Rows[0]["ReportsInprocess"].ToString() == "0 Reports In-Process")
+                {
+                    pr_status = "Complete Report";
+                }
+                else
+                    pr_status = "Partial Report";
+
+                decimal countrows = datasheet_data.Tables[0].Rows.Count;
+                int SpCount = (Convert.ToInt32(Math.Ceiling(countrows / 19)) + 1);
+
+                rpt.Load(byteReportReqBody.rptFilePath);
+                rpt.SetDataSource(datasheet_data.Tables[0]);
+                rpt.SetParameterValue("pname", datasheet_data.Tables[0].Rows[0]["PATIENT_NAME"].ToString());
+                rpt.SetParameterValue("refby", datasheet_data.Tables[0].Rows[0]["REF_BY"].ToString());
+                rpt.SetParameterValue("remark", datasheet_data.Tables[0].Rows[0]["CLIENTADDRESS"].ToString());
+
+                //rpt.SetParameterValue("page_no", "Page : " + DN + " of " + flag_no);
+                //flag_no--;
+                System.IO.Stream oStream = null;
+                oStream = rpt.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
+                binFile = new byte[oStream.Length];
+                oStream.Read(binFile, 0, Convert.ToInt32(oStream.Length - 1));
+                CrystalReportViewer1.Dispose();
+                rpt.Close();
+                rpt.Dispose();
+                datasheet_data.Clear();
+                return binFile;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Exception in generatePdfExtracts");
+                ErrorLogger.InsertErrorLog(ex);
+                return null;
+            }
+            }
+
         public bool IsDataSheet(string barcode)
         {
             DataSet temp_dp = ExecuteReportGenerationSteps("ReportDB..usp_pdfgen_new", "IS_DATASHEET", barcode);

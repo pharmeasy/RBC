@@ -60,6 +60,10 @@ namespace RBC.Controllers
             {
                 binfile = reportService.generatePdfExtracts(byteReportReqBody);
             }
+            else if(byteReportReqBody.testcode == "PartialReport")
+            {
+                binfile = reportService.addPartialSummaryPage(byteReportReqBody);
+            }
             else
             {
                 binfile = reportService.generateReportBarcoder(byteReportReqBody);
