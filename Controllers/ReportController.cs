@@ -40,9 +40,21 @@ namespace RBC.Controllers
                 response.PageNumber = pageNumber;
                 return response;
             }
-            if (byteReportReqBody.testcode == "generatepdfExtractAbs")
+            else if (byteReportReqBody.testcode == "generatepdfExtractAbs")
             {
                 return reportService.generatepdfExtractAbstract(byteReportReqBody);
+            }
+            else if (byteReportReqBody.testcode == "TermsConditions")
+            {
+                binfile = reportService.addTermsPage(byteReportReqBody);
+            }
+            else if (byteReportReqBody.testcode == "CoverPage")
+            {
+                binfile = reportService.addCoverPage(byteReportReqBody);
+            }
+            else if(byteReportReqBody.testcode == "SummaryPage")
+            {
+                binfile = reportService.AddSummaryPage(byteReportReqBody);
             }
             else
             {

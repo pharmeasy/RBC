@@ -17,6 +17,7 @@ namespace RBC.AppCodes
     {
         public byte[] binFile = null;
         DataSet ds = null;
+        public CharbiServerData charbiServerData = new CharbiServerData();
 
         public byte[] generateReportBarcoder(ByteReportReqBody byteReportReqBody)
         {
@@ -212,6 +213,94 @@ namespace RBC.AppCodes
             }
         }
 
+        public byte[] addTermsPage(ByteReportReqBody byteReportReqBody)
+        {
+            try
+            {
+                CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
+                ReportDocument rpt = new ReportDocument();
+
+                //List<AllData> UserList = JsonConvert.DeserializeObject<List<AllData>>(byteReportReqBody.dataSet);
+                //DataTable dataTable = StringToDataTable.ToDataTable(UserList);
+
+                //if (dataTable.Rows.Count <= 0)
+                //{
+                //    return null;
+                //}
+
+                rpt.Load(byteReportReqBody.rptFilePath);
+                //rpt.SetDataSource(byteReportReqBody.dataSet);
+                CrystalReportViewer1.ReportSource = rpt;
+                rpt.SetParameterValue("page_no", "Page : " + byteReportReqBody.currPage + " of " + byteReportReqBody.totalPages);
+                System.IO.Stream oStream = null;
+                oStream = rpt.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
+                binFile = new byte[oStream.Length];
+                oStream.Read(binFile, 0, Convert.ToInt32(oStream.Length - 1));
+                rpt.Close();
+                rpt.Dispose();
+                CrystalReportViewer1.Dispose();
+                return binFile;
+
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Exception during generateReportBarcoder" + ex);
+                ErrorLogger.InsertErrorLog(ex);
+                return null;
+            }
+        }
+
+        private DataSet ExecuteReportGenerationStepPECOVERandSummaryPage(string _spName, string labcode = null)
+        {
+            SqlParameter[] sqlParams = new SqlParameter[1];
+            sqlParams[0] = new SqlParameter("@CUSTOMERID", labcode);
+            return charbiServerData.ExecuteSPWithParameters(_spName, sqlParams);
+
+        }
+
+        public byte[] addCoverPage(ByteReportReqBody byteReportReqBody)
+        {
+            try
+            {
+                CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
+                ReportDocument rpt = new ReportDocument();
+
+                DataSet datasheet_data = ExecuteReportGenerationStepPECOVERandSummaryPage("ReportDB..usp_PECoverPage", byteReportReqBody.customerId);
+
+                if (datasheet_data.Tables.Count <= 0)
+                {
+                    return null;
+                }
+
+                rpt.Load(byteReportReqBody.rptFilePath);
+                rpt.SetDataSource(datasheet_data.Tables[0]);
+                CrystalReportViewer1.ReportSource = rpt;
+
+                rpt.SetParameterValue("pname", datasheet_data.Tables[0].Rows[0]["PATIENT"].ToString());
+                rpt.SetParameterValue("sdate", datasheet_data.Tables[0].Rows[0]["sdate"].ToString());
+                rpt.SetParameterValue("tests", datasheet_data.Tables[0].Rows[0]["tests"].ToString());
+                //rpt.SetParameterValue("pr_status", datasheet_data.Tables[0].Rows[0]["pr_status"].ToString());
+                rpt.SetParameterValue("pr_status", byteReportReqBody.prStatus);
+
+                System.IO.Stream oStream = null;
+                oStream = rpt.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
+                byte[] binFile = new byte[oStream.Length];
+                oStream.Read(binFile, 0, Convert.ToInt32(oStream.Length - 1));
+                rpt.Close();
+                rpt.Dispose();
+                CrystalReportViewer1.Dispose();
+                return binFile;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during generateReportBarcoder" + ex);
+                ErrorLogger.InsertErrorLog(ex);
+                return null;
+            }
+
+        }
+
         public ByteReportResponse generatepdfExtractAbstract(ByteReportReqBody byteReportReqBody)
         {
             CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
@@ -329,7 +418,7 @@ namespace RBC.AppCodes
             return (new CharbiServerData().ExecuteSPWithParameters(_spName, sqlParams));
         }
 
-        public byte[] AddSummaryPage(string rrt, string sct, string customerid, int DN, int flag_no)
+        public byte[] AddSummaryPage(ByteReportReqBody byteReportReqBody)
         {
             StringBuilder tests_to_show_other = new StringBuilder();
             StringBuilder tests_to_show_serumn = new StringBuilder();
@@ -337,8 +426,7 @@ namespace RBC.AppCodes
             ReportDocument rpt = new ReportDocument();
             try
             {
-                DataSet datasheet_data = ExecuteReportGenerationSteps("ReportDB..usp_pdfgen_new", "GET_DATASHEET_NEW", customerid);
-                string rptpath = ConfigurationManager.AppSettings["DataSheet"].ToString();
+                DataSet datasheet_data = ExecuteReportGenerationSteps("ReportDB..usp_pdfgen_new", "GET_DATASHEET_NEW", byteReportReqBody.customerId);
                 string[] tempstore = datasheet_data.Tables[0].Rows[0]["PATIENT_NAME"].ToString().Split('(', '/', ')');
                 int amountcollected = datasheet_data.Tables[0].Rows[0]["AMOUNT"].ToString().Trim() == "" ? 0 : Convert.ToInt32(datasheet_data.Tables[0].Rows[0]["AMOUNT"].ToString());
 
@@ -371,12 +459,12 @@ namespace RBC.AppCodes
                 }
                 string tests = tests_to_show_serumn.ToString() == "" ? tests_to_show_other.ToString() : tests_to_show_serumn.ToString();
                 string actualamount = "Rs." + amountcollected + "/-(" + CommonFunctions.NumberToWords(amountcollected) + " only)";
-                rpt.Load(rptpath + @"\ReportSummary.rpt");
+                rpt.Load(byteReportReqBody.rptFilePath);
                 CrystalReportViewer1.ReportSource = rpt;
                 rpt.SetParameterValue("pname", tempstore[0].ToString());
                 rpt.SetParameterValue("Age", tempstore[1].ToString());
                 rpt.SetParameterValue("Sex", tempstore[2].ToString());
-                rpt.SetParameterValue("customerID", customerid);
+                rpt.SetParameterValue("customerID", byteReportReqBody.customerId);
                 rpt.SetParameterValue("barcodes", datasheet_data.Tables[1].Rows[0]["BARCODE"].ToString());
                 rpt.SetParameterValue("refby", datasheet_data.Tables[0].Rows[0]["REF_BY"].ToString());
                 rpt.SetParameterValue("remark", datasheet_data.Tables[0].Rows[0]["CLIENTADDRESS"].ToString());
@@ -425,10 +513,10 @@ namespace RBC.AppCodes
                     rpt.SetParameterValue("sampletype4", "");
                 }
 
-                rpt.SetParameterValue("sct", sct);
-                rpt.SetParameterValue("rrt", rrt);
+                rpt.SetParameterValue("sct", byteReportReqBody.sct);
+                rpt.SetParameterValue("rrt", byteReportReqBody.rrt);
                 rpt.SetParameterValue("amcollec", amountcollected == 0 ? "-" : actualamount);
-                rpt.SetParameterValue("page_no", "Page : " + DN + " of " + flag_no);
+                rpt.SetParameterValue("page_no", "Page : " + byteReportReqBody.currPage + " of " + byteReportReqBody.totalPages);
                 //flag_no--;
                 System.IO.Stream oStream = null;
                 oStream = rpt.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);

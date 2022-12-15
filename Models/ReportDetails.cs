@@ -48,6 +48,7 @@
         public string dataSet { get; set; }
         public int pageInitialCount { get; set; }
         public int absReportType { get; set; }
+        public string prStatus { get; set; }
     }
 
     public class ByteReportResponse
