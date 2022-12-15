@@ -52,9 +52,13 @@ namespace RBC.Controllers
             {
                 binfile = reportService.addCoverPage(byteReportReqBody);
             }
-            else if(byteReportReqBody.testcode == "SummaryPage")
+            else if (byteReportReqBody.testcode == "SummaryPage")
             {
                 binfile = reportService.AddSummaryPage(byteReportReqBody);
+            }
+            else if (byteReportReqBody.testcode == "AIWO")
+            {
+                binfile = reportService.generatePdfExtracts(byteReportReqBody);
             }
             else
             {

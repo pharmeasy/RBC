@@ -49,6 +49,8 @@
         public int pageInitialCount { get; set; }
         public int absReportType { get; set; }
         public string prStatus { get; set; }
+        public string sampleType { get; set; }
+        public string barcode { get; set; }
     }
 
     public class ByteReportResponse
