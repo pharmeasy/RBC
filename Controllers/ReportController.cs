@@ -64,6 +64,10 @@ namespace RBC.Controllers
             {
                 binfile = reportService.addPartialSummaryPage(byteReportReqBody);
             }
+            else if(byteReportReqBody.testcode == "Blank")
+            {
+                binfile = reportService.addBlankPage(byteReportReqBody);
+            }
             else
             {
                 binfile = reportService.generateReportBarcoder(byteReportReqBody);

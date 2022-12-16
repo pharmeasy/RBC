@@ -334,7 +334,8 @@ namespace RBC.AppCodes
                 rpt.SetParameterValue("PageNo", byteReportReqBody.totalPages);
                 if (byteReportReqBody.absReportType == 2)
                     rpt.SetParameterValue("QRFilePath", byteReportReqBody.tempfilepath);
-                rpt.SetParameterValue("PageInitialCount", byteReportReqBody.pageInitialCount);
+                if(byteReportReqBody.pageInitialCount != 0)
+                    rpt.SetParameterValue("PageInitialCount", byteReportReqBody.pageInitialCount);
 
                 if (byteReportReqBody.endOfReport == 1)
                 {
@@ -568,7 +569,7 @@ namespace RBC.AppCodes
                 rpt.SetParameterValue("technology", byteReportReqBody.strname1);
                 //rpt.SetParameterValue("sample_type", dataTable.Rows[0]["sample_type"].ToString());
                 rpt.SetParameterValue("sample_type", byteReportReqBody.sampleType);
-                rpt.SetParameterValue("sample_type", dataTable.Rows[0]["group_type"].ToString());
+                //rpt.SetParameterValue("sample_type", dataTable.Rows[0]["group_type"].ToString());
                 rpt.SetParameterValue("remark", dataTable.Rows[0]["remarks"].ToString());
                 rpt.SetParameterValue("WP", " ");
                 rpt.SetParameterValue("endReport", "~~ End of report ~~");
@@ -703,6 +704,21 @@ namespace RBC.AppCodes
                 return null;
             }
             }
+
+        public byte[] addBlankPage(ByteReportReqBody byteReportReqBody)
+        {
+            ReportDocument rpt = new ReportDocument();
+            CrystalReportViewer CrystalReportViewer1 = new CrystalReportViewer();
+            rpt.Load(byteReportReqBody.rptFilePath);
+            System.IO.Stream oStream = null;
+            oStream = rpt.ExportToStream(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat);
+            binFile = new byte[oStream.Length];
+            oStream.Read(binFile, 0, Convert.ToInt32(oStream.Length - 1));
+            CrystalReportViewer1.Dispose();
+            rpt.Close();
+            rpt.Dispose();
+            return binFile;
+        }
 
         public bool IsDataSheet(string barcode)
         {
