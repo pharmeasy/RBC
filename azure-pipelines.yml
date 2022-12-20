@@ -10,7 +10,7 @@ pool:
   vmImage: 'windows-2019'
 
 variables:
-  solution: 'RBC/RBC.sln'
+  solution: 'RBC.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Debug'
 
