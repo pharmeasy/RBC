@@ -207,6 +207,8 @@
     <Compile Include="AppCodes\CharbiServerData.cs" />
     <Compile Include="AppCodes\ErrorLogger.cs" />
     <Compile Include="AppCodes\CommonFunctions.cs" />
+    <Compile Include="AppCodes\Functions.cs" />
+    <Compile Include="AppCodes\QRCodeEncryptionGenerator.cs" />
     <Compile Include="AppCodes\ReportService.cs" />
     <Compile Include="AppCodes\StringToDataTable.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -219,6 +221,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\QRReqBody.cs" />
     <Compile Include="Models\ReportDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

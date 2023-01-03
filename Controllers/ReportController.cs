@@ -77,5 +77,16 @@ namespace RBC.Controllers
 
         }
 
+        [Route("api/QRCodeGetlink")]
+        [HttpPost]
+        public QRResBody GenerateQRCodeEncryption(QRReqBody qRReqBody)
+        {
+            string encyrptionText = Functions.Encrypt(null+"|"+qRReqBody.customerId);
+            QRResBody response = new QRResBody();
+            response.aesEncryptionText = encyrptionText;
+            return response;
+
+        }
+
     }
 }
